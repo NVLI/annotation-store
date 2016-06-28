@@ -1,0 +1,10 @@
+name: Video Annotation
+type: module
+description: 'Provides Video Annotation store.'
+package: Example modules
+
+# Information added by Drupal.org packaging script on 2016-06-23
+version: '8.x-1.x-dev'
+core: '8.x'
+project: 'Annotations'
+datestamp: 1466663648
