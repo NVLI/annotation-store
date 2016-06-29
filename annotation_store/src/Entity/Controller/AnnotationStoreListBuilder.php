@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\video_annotation\Entity\Controller;
+namespace Drupal\annotation_store\Entity\Controller;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -12,9 +12,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a list controller for content_entity_example entity.
  *
- * @ingroup video_annotation
+ * @ingroup annotation_store
  */
-class VideoAnnotationListBuilder extends EntityListBuilder {
+class AnnotationStoreListBuilder extends EntityListBuilder {
 
   /**
    * The url generator.
@@ -22,7 +22,6 @@ class VideoAnnotationListBuilder extends EntityListBuilder {
    * @var \Drupal\Core\Routing\UrlGeneratorInterface
    */
   protected $urlGenerator;
-
 
   /**
    * {@inheritdoc}
@@ -50,7 +49,6 @@ class VideoAnnotationListBuilder extends EntityListBuilder {
     $this->urlGenerator = $url_generator;
   }
 
-
   /**
    * {@inheritdoc}
    *
@@ -60,8 +58,7 @@ class VideoAnnotationListBuilder extends EntityListBuilder {
    */
   public function render() {
     $build['description'] = array(
-      '#markup' => $this->t('List of annotations', array(
-      )),
+      '#markup' => $this->t('List of annotations', array()),
     );
     $build['table'] = parent::render();
     return $build;
@@ -89,7 +86,7 @@ class VideoAnnotationListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\video_annotation\Entity\Contact */
+    /* @var $entity \Drupal\annotation_store\Entity\Contact */
     $obj = $entity->getOwner();
     $row['text'] = $entity->link($entity->text->value);
     $row['type'] = $entity->type->value;

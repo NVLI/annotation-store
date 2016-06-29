@@ -1,7 +1,7 @@
-name: Video Annotation
+name: Annotation Store
 type: module
 description: 'Provides Video Annotation store.'
-package: Example modules
+package: Annotation
 
 # Information added by Drupal.org packaging script on 2016-06-23
 version: '8.x-1.x-dev'

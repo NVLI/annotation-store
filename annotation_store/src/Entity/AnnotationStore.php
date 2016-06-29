@@ -1,19 +1,19 @@
 <?php
 
-namespace Drupal\video_annotation\Entity;
+namespace Drupal\annotation_store\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\video_annotation\VideoAnnotationInterface;
+use Drupal\annotation_store\AnnotationStoreInterface;
 use Drupal\user\UserInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
 
 /**
  * Defines the ContentEntityExample entity.
  *
- * @ingroup video_annotation
+ * @ingroup annotation_store
  *
  * This is the main definition of the entity type. From it, an entityType is
  * derived. The most important properties in this example are listed below.
@@ -70,28 +70,28 @@ use Drupal\Core\Entity\EntityChangedTrait;
  * is read and cached. Don't forget to clear cache after changes.
  *
  * @ContentEntityType(
- *   id = "video_annotation",
+ *   id = "annotation_store",
  *   label = @Translation("Contact entity"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\video_annotation\Entity\Controller\VideoAnnotationListBuilder",
+ *     "list_builder" = "Drupal\annotation_store\Entity\Controller\AnnotationStoreListBuilder",
  *     "form" = {
  *       "add" = "Drupal\content_entity_example\Form\ContactForm",
  *       "edit" = "Drupal\content_entity_example\Form\ContactForm",
  *       "delete" = "Drupal\content_entity_example\Form\ContactDeleteForm",
  *     },
- *     "access" = "Drupal\video_annotation\VideoAnnotationAccessControlHandler",
+ *     "access" = "Drupal\annotation_store\AnnotationStoreAccessControlHandler",
  *   },
  *   list_cache_contexts = { "user" },
- *   base_table = "video_annotation",
+ *   base_table = "annotation_store",
  *   admin_permission = "administer content_entity_example entity",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "user",
  *   },
  *   links = {
- *     "canonical" = "/video_annotation/{video_annotation}",
- *     "collection" = "/video_annotation/list"
+ *     "canonical" = "/annotation_store/{annotation_store}",
+ *     "collection" = "/annotation_store/list"
  *   },
  * )
  *
@@ -122,7 +122,7 @@ use Drupal\Core\Entity\EntityChangedTrait;
  * The class also uses the EntityChangedTrait trait which allows it to record
  * timestamps of save operations.
  */
-class VideoAnnotation extends ContentEntityBase implements VideoAnnotationInterface {
+class AnnotationStore extends ContentEntityBase implements AnnotationStoreInterface {
 
   use EntityChangedTrait;
 
@@ -238,7 +238,7 @@ class VideoAnnotation extends ContentEntityBase implements VideoAnnotationInterf
         'max_length' => 255,
         'text_processing' => 0,
       ));
-      
+
     $fields['type'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Type'))
       ->setDescription(t('The type of the annotation.'))
@@ -247,7 +247,7 @@ class VideoAnnotation extends ContentEntityBase implements VideoAnnotationInterf
         'max_length' => 255,
         'text_processing' => 0,
       ));
-      
+
     $fields['text'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Text'))
       ->setDescription(t('The type of the annotation.'))
@@ -257,7 +257,7 @@ class VideoAnnotation extends ContentEntityBase implements VideoAnnotationInterf
       ->setLabel(t('URI'))
       ->setDescription(t('The first name of the Contact entity.'))
       ->setDefaultValue('');
-      
+
     $fields['target_container'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Container'))
       ->setDescription(t('The first name of the Contact entity.'))
@@ -276,7 +276,7 @@ class VideoAnnotation extends ContentEntityBase implements VideoAnnotationInterf
         'max_length' => 255,
         'text_processing' => 0,
       ));
-      
+
     $fields['target_src'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Source'))
       ->setDescription(t('The type of the annotation.'))
@@ -285,12 +285,12 @@ class VideoAnnotation extends ContentEntityBase implements VideoAnnotationInterf
         'max_length' => 255,
         'text_processing' => 0,
       ));
-      
+
     $fields['rangetime_start'] = BaseFieldDefinition::create('float')
       ->setLabel(t('Time Start'))
       ->setDescription(t('The type of the annotation.'))
       ->setDefaultValue(0);
-      
+
     $fields['rangetime_end'] = BaseFieldDefinition::create('float')
       ->setLabel(t('Time End'))
       ->setDescription(t('The type of the annotation.'))

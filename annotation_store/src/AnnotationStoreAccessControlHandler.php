@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\video_annotation;
+namespace Drupal\annotation_store;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
@@ -12,7 +12,7 @@ use Drupal\Core\Session\AccountInterface;
  *
  * @see \Drupal\comment\Entity\Comment.
  */
-class VideoAnnotationAccessControlHandler extends EntityAccessControlHandler {
+class AnnotationStoreAccessControlHandler extends EntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
@@ -23,7 +23,7 @@ class VideoAnnotationAccessControlHandler extends EntityAccessControlHandler {
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     switch ($operation) {
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'view VideoAnnotation entity');
+        return AccessResult::allowedIfHasPermission($account, 'view AnnotationStore entity');
 
     }
     return AccessResult::allowed();
@@ -36,7 +36,7 @@ class VideoAnnotationAccessControlHandler extends EntityAccessControlHandler {
    * will be created during the 'add' process.
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add VideoAnnotation entity');
+    return AccessResult::allowedIfHasPermission($account, 'add AnnotationStore entity');
   }
 
 }

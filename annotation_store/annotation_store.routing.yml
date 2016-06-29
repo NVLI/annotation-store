@@ -1,0 +1,45 @@
+# This file brings everything together. Very nifty!
+
+# Route name can be used in several places; e.g. links, redirects, and local
+# actions.
+
+entity.annotation_store.canonical:
+  path: '/annotation_store/{annotation_store}'
+  defaults:
+    _entity_view: 'annotation_store'
+    _title: 'Video Annotation Content'
+  requirements:
+    _entity_access: 'annotation_store.view'
+
+entity.annotation_store.collection:
+  path: '/annotation_store/list'
+  defaults:
+    _entity_list: 'annotation_store'
+    _title: 'Video Annotation List'
+  requirements:
+    _permission: 'view annotation_store entity'
+
+annotation_store.save:
+  path: '/annotations/apis/annotations'
+  defaults:
+    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::videoAnnotationStore'
+    _title: 'Video Annotation'
+  requirements:
+    _permission: 'annotation_store'
+
+annotation_store.search:
+  path: '/annotations/apis/search'
+  defaults:
+    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::videoAnnotationSearch'
+    _title: 'Video Annotation'
+  requirements:
+    _permission: 'annotation_store'
+    
+annotation_store.alter:
+  path: '/annotations/apis/annotations/{id}'
+  defaults:
+    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::videoAnnotationUpdateDelete'
+    _title: 'Video Annotation'
+  methods:  [PUT, DELETE]
+  requirements:
+    _access: 'TRUE'
