@@ -3,7 +3,6 @@
 namespace Drupal\annotation_store\Controller;
 
 use Drupal\Component\Serialization\Json;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller routines for annotation_store routes.
@@ -79,7 +78,8 @@ class AnnotationStoreController {
         'rangetime_end' => $annotation_data->rangeTime['end'],
       ));
       $entity->save();
-      print_r(new JsonResponse($annotation_data));
+      $annotation_data->id = $entity->id();
+      print_r(json_encode($annotation_data));
     }
     exit;
   }
@@ -88,9 +88,30 @@ class AnnotationStoreController {
    * Annotation update - loads posted data, returns data as JSON object.
    */
   public function videoAnnotationApiUpdate($id) {
+    $annotation_data = $this->annotationApiFromStdin();
+    if ($id) {
+      $result = $this->updateAnnotation($id, $annotation_data);
+      print_r(json_encode($annotation_data));
+    }
+    else {
+      print_r('failed');
+    }
+    exit;
+  }
+
+  /**
+   * Annotation update - deletes the entity based on the id passed.
+   */
+  public function videoAnnotationApiDelete() {
     $data = $this->annotationApiFromStdin();
-    $result = $this->updateAnnotation($id, $data);
-    print_r(new JsonResponse($data));
+    $id = $data->id;
+    if ($id) {
+      entity_delete_multiple('annotation_store', array($id));
+      print_r(1);
+    }
+    else {
+      print_r(0);
+    }
     exit;
   }
 
