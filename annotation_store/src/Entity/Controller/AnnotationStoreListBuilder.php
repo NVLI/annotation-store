@@ -10,7 +10,7 @@ use Drupal\Core\Routing\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a list controller for content_entity_example entity.
+ * Provides a list controller for annotation_store entity.
  *
  * @ingroup annotation_store
  */
@@ -35,7 +35,7 @@ class AnnotationStoreListBuilder extends EntityListBuilder {
   }
 
   /**
-   * Constructs a new ContactListBuilder object.
+   * Constructs a new AnnotationStoreListBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
@@ -86,7 +86,7 @@ class AnnotationStoreListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\annotation_store\Entity\Contact */
+    /* @var $entity \Drupal\annotation_store\Entity\AnnotationStore */
     $obj = $entity->getOwner();
     $row['text'] = $entity->link($entity->text->value);
     $row['type'] = $entity->type->value;
