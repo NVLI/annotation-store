@@ -12,28 +12,28 @@ class AnnotationStoreController {
   /**
    * Routing callback - annotation search.
    */
-  public function videoAnnotationSearch() {
+  public function annotationSearch() {
     $this->annotationReqType();
   }
 
   /**
    * Routing callback - annotation save.
    */
-  public function videoAnnotationStore() {
+  public function annotationSave() {
     $this->annotationReqType();
   }
 
   /**
    * Routing callback - annotation update and delete.
    */
-  public function videoAnnotationUpdateDelete($id) {
+  public function annotationUpdateDelete($id) {
     $this->annotationReqType($id);
   }
 
   /**
    * Annotation search - Returns list of annotations.
    */
-  public function videoAnnotationApiSearch() {
+  public function annotationApiSearch() {
     $obj = entity_load_multiple('annotation_store');
     $res = '';
     if ($obj) {
@@ -61,7 +61,7 @@ class AnnotationStoreController {
   /**
    * Annotation create as entity.
    */
-  public function videoAnnotationApiCreate() {
+  public function annotationApiCreate() {
     $annotation_data = $this->annotationApiFromStdin();
     $annotation_data_save = $annotation_data;
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
@@ -84,7 +84,7 @@ class AnnotationStoreController {
   /**
    * Annotation update - loads posted data, returns data as JSON object.
    */
-  public function videoAnnotationApiUpdate($id) {
+  public function annotationApiUpdate($id) {
     $annotation_data = $this->annotationApiFromStdin();
     if ($id) {
       $this->updateAnnotation($id, $annotation_data, 'onUpdate');
@@ -99,7 +99,7 @@ class AnnotationStoreController {
   /**
    * Annotation update - deletes the entity based on the id passed.
    */
-  public function videoAnnotationApiDelete() {
+  public function annotationApiDelete() {
     $data = $this->annotationApiFromStdin();
     $id = $data->id;
     if ($id) {
@@ -133,19 +133,19 @@ class AnnotationStoreController {
     $method = $_SERVER['REQUEST_METHOD'];
     switch ($method) {
       case 'GET':
-        $this->videoAnnotationApiSearch();
+        $this->annotationApiSearch();
         break;
 
       case 'POST':
-        $this->videoAnnotationApiCreate();
+        $this->annotationApiCreate();
         break;
 
       case 'PUT':
-        $this->videoAnnotationApiUpdate($id);
+        $this->annotationApiUpdate($id);
         break;
 
       case 'DELETE':
-        $this->videoAnnotationApiDelete();
+        $this->annotationApiDelete();
         break;
 
     }
