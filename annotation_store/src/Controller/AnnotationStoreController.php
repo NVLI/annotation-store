@@ -35,28 +35,26 @@ class AnnotationStoreController {
    */
   public function videoAnnotationApiSearch() {
     $obj = entity_load_multiple('annotation_store');
-    foreach ($obj as $annotations) {
-      $res[] = array(
-        'media' => $annotations->media->value,
-        'text' => $annotations->text->value,
-        'ranges' => array(),
-        'uri' => $annotations->uri->value,
-        'id' => $annotations->id->value,
-        'target' => array(
-          'container' => $annotations->target_container->value,
-          'ext' => $annotations->target_ext->value,
-          'src' => $annotations->target_src->value,
-        ),
-        'rangeTime' => array(
-          'start' => $annotations->rangetime_start->value,
-          "end" => $annotations->rangetime_end->value,
-        ),
-      );
+    $res = '';
+    if ($obj) {
+      foreach ($obj as $annotations) {
+        if ($annotations->uri->value == $_GET['uri']) {
+        $res .= $annotations->data->value;
+          if ($annotations !== end($obj)) {
+            $res .= ',';
+           
+          }
+        }
+      }
+      $res = rtrim($res, ",");
     }
-    $ars = array(
-      'rows' => $res,
-    );
-    print json_encode($ars);
+    else {
+      // Dummy data for player initialization when data is absent.
+      // Temporary Fix - for Open Video Annotation.
+      $res = '{"permissions":{"read":[],"update":[],"delete":[],"admin":[]},"ranges":[],"quote":"","text":"dummy","media":"video","target":{"container":"vjs_video_dummy","src":"http:\/\/dummy.com\/dummy.mp4","ext":".mp4"},"rangeTime":{"start":3.14796,"end":4.65196},"updated":"2016-07-08T07:23:10.147Z","created":"2016-07-08T07:23:10.147Z","uri":"http:\/\/dummy.com\/dummy\/1","id":"1"}';
+    }
+    $ars = '{"rows":[' . $res . ']}';
+    print $ars;
     exit;
   }
 
@@ -65,20 +63,19 @@ class AnnotationStoreController {
    */
   public function videoAnnotationApiCreate() {
     $annotation_data = $this->annotationApiFromStdin();
+    $annotation_data_save = $annotation_data;
+    $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     if ($annotation_data->text) {
       $entity = entity_create('annotation_store', array(
-        'text' => $annotation_data->text,
-        'uri' => $annotation_data->uri,
-        'media' => 'video',
         'type' => 'video annotation',
-        'target_container' => $annotation_data->target['container'],
-        'target_ext' => $annotation_data->target['ext'],
-        'target_src' => $annotation_data->target['src'],
-        'rangetime_start' => $annotation_data->rangeTime['start'],
-        'rangetime_end' => $annotation_data->rangeTime['end'],
+        'language' => $language,
+        'data' => json_encode($annotation_data),
+        'uri' => $annotation_data->uri,
+        'text' => $annotation_data->text,
       ));
       $entity->save();
       $annotation_data->id = $entity->id();
+      $this->updateAnnotation($entity->id(), $annotation_data, 'onCreate');
       print_r(json_encode($annotation_data));
     }
     exit;
@@ -90,7 +87,7 @@ class AnnotationStoreController {
   public function videoAnnotationApiUpdate($id) {
     $annotation_data = $this->annotationApiFromStdin();
     if ($id) {
-      $result = $this->updateAnnotation($id, $annotation_data);
+      $this->updateAnnotation($id, $annotation_data, 'onUpdate');
       print_r(json_encode($annotation_data));
     }
     else {
@@ -118,11 +115,13 @@ class AnnotationStoreController {
   /**
    * Annotation update callback.
    */
-  public function updateAnnotation($id, $data) {
+  public function updateAnnotation($id, $data, $flag) {
     $ent = entity_load('annotation_store', $id);
-    $ent->text->value = $data->text;
-    $ent->rangetime_start->value = $data->rangeTime['start'];
-    $ent->rangetime_end->value = $data->rangeTime['end'];
+    if ($flag == 'onUpdate') {
+      $ent->text->value = $data->text;
+      $ent->changed->value = time();
+    }
+    $ent->data->value = json_encode($data);
     $ent->save();
     return 'updated';
   }

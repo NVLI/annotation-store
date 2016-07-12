@@ -86,14 +86,16 @@ class AnnotationStoreListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
+    $config = \Drupal::config('annotation_store.settings');
+    $date_format = $config->get('annotation_store_date_format');
     /* @var $entity \Drupal\annotation_store\Entity\AnnotationStore */
     $obj = $entity->getOwner();
     $row['text'] = $entity->link($entity->text->value);
     $row['type'] = $entity->type->value;
     $row['uri'] = $entity->uri->value;
     $row['user_id'] = $obj->link($obj->get('name')->value);
-    $row['created'] = $entity->created->value;
-    $row['changed'] = $entity->changed->value;
+    $row['created'] = date($date_format, $entity->created->value);
+    $row['changed'] = date($date_format, $entity->changed->value);
     return $row;
   }
 

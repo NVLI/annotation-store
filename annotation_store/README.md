@@ -8,6 +8,8 @@ name of "annotation_store".
 
 The entities which are created is listed at "/annotation_store/list".
 
+Annotation list links provided at 'admin/content'.
+
 This information includes Annotation text, type, URI, user, created
 and changed time stamp.
 

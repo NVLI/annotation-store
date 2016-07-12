@@ -116,6 +116,43 @@ class AnnotationStore extends ContentEntityBase implements AnnotationStoreInterf
       ->setDescription(t('The ID of the Contact entity.'))
       ->setReadOnly(TRUE);
 
+    $fields['type'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Type'))
+      ->setDescription(t('The type of the annotation.'))
+      ->setSettings(array(
+        'default_value' => '',
+        'max_length' => 20,
+        'text_processing' => 0,
+      ));
+
+    $fields['language'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Language'))
+      ->setDescription(t('The language of the annotation.'))
+      ->setSettings(array(
+        'default_value' => '',
+        'max_length' => 12,
+        'text_processing' => 0,
+      ));
+
+    $fields['data'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Data'))
+      ->setDescription(t('Data includes container, extension, src, start and end time.'))
+      ->setSettings(array(
+        'default_value' => '',
+        'max_length' => 255,
+        'text_processing' => 0,
+      ));
+
+    $fields['uri'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('URI'))
+      ->setDescription(t('The first name of the Contact entity.'))
+      ->setDefaultValue('');
+
+    $fields['text'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Text'))
+      ->setDescription(t('The type of the annotation.'))
+      ->setDefaultValue('');
+
     // Entity reference field, holds the reference to the user object.
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User Name'))
@@ -127,72 +164,6 @@ class AnnotationStore extends ContentEntityBase implements AnnotationStoreInterf
         'type' => 'author',
         'weight' => -3,
       ));
-
-    $fields['media'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Media'))
-      ->setDescription(t('The type of the video annotation entity.'))
-      ->setSettings(array(
-        'default_value' => '',
-        'max_length' => 255,
-        'text_processing' => 0,
-      ));
-
-    $fields['type'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Type'))
-      ->setDescription(t('The type of the annotation.'))
-      ->setSettings(array(
-        'default_value' => '',
-        'max_length' => 255,
-        'text_processing' => 0,
-      ));
-
-    $fields['text'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t('Text'))
-      ->setDescription(t('The type of the annotation.'))
-      ->setDefaultValue('');
-
-    $fields['uri'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t('URI'))
-      ->setDescription(t('The first name of the Contact entity.'))
-      ->setDefaultValue('');
-
-    $fields['target_container'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Container'))
-      ->setDescription(t('The first name of the Contact entity.'))
-      ->setDefaultValue('')
-      ->setSettings(array(
-        'default_value' => '',
-        'max_length' => 255,
-        'text_processing' => 0,
-      ));
-
-    $fields['target_ext'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Extension'))
-      ->setDescription(t('The type of the annotation.'))
-      ->setSettings(array(
-        'default_value' => '',
-        'max_length' => 255,
-        'text_processing' => 0,
-      ));
-
-    $fields['target_src'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Source'))
-      ->setDescription(t('The type of the annotation.'))
-      ->setSettings(array(
-        'default_value' => '',
-        'max_length' => 255,
-        'text_processing' => 0,
-      ));
-
-    $fields['rangetime_start'] = BaseFieldDefinition::create('float')
-      ->setLabel(t('Time Start'))
-      ->setDescription(t('The type of the annotation.'))
-      ->setDefaultValue(0);
-
-    $fields['rangetime_end'] = BaseFieldDefinition::create('float')
-      ->setLabel(t('Time End'))
-      ->setDescription(t('The type of the annotation.'))
-      ->setDefaultValue(0);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))

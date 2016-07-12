@@ -2,9 +2,8 @@ name: Annotation Store
 type: module
 description: 'Provides Video Annotation store.'
 package: Annotation
+configure: annotation_store.admin_settings
 
-# Information added by Drupal.org packaging script on 2016-06-23
-version: '8.x-1.x-dev'
+# Information added by Drupal.org packaging script on 2016-07-08
 core: '8.x'
-project: 'Annotations'
-datestamp: 1466663648
+datestamp: 1467981993
