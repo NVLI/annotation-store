@@ -37,10 +37,19 @@ class AnnotationStoreController {
   public function getResourceEntityId() {
     $request_uri = \Drupal::request()->server->get('HTTP_REFERER');
     $request_path = parse_url($request_uri, PHP_URL_PATH);
-    // $request_path should not /node/nid. $request_path should be alias.
+    // This method is not used in localhost while testing.
     $path_alias = \Drupal::service('path.alias_storage')->load(array('alias' => $request_path));
-    $split = explode('/', $path_alias['source']);
-    return $split[2];
+    // If url is from path alias
+    if (is_array($path_alias)) {
+      $split = explode('/', $path_alias['source']);
+      $resource_entity_id = $split[2];
+    }
+    // If url is without alias
+    else {
+      $split = explode('/', $request_path);
+      $resource_entity_id = $split[2];
+    }
+    return $resource_entity_id;
   }
 
   /**
