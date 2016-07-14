@@ -90,7 +90,6 @@ class AnnotationStoreListBuilder extends EntityListBuilder {
     $date_format = $config->get('annotation_store_date_format');
     /* @var $entity \Drupal\annotation_store\Entity\AnnotationStore */
     $obj = $entity->getOwner();
-    $created_time = $entity->getCreatedTime();
     $row['text'] = $entity->link($entity->text->value);
     $row['type'] = $entity->type->value;
     $row['uri'] = $entity->uri->value;

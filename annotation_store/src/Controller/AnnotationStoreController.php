@@ -3,6 +3,7 @@
 namespace Drupal\annotation_store\Controller;
 
 use Drupal\Component\Serialization\Json;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Controller routines for annotation_store routes.
@@ -12,38 +13,50 @@ class AnnotationStoreController {
   /**
    * Routing callback - annotation search.
    */
-  public function annotationSearch() {
+  public function annotationStoreSearch() {
     $this->annotationReqType();
   }
 
   /**
    * Routing callback - annotation save.
    */
-  public function annotationSave() {
+  public function annotationStoreSave() {
     $this->annotationReqType();
   }
 
   /**
    * Routing callback - annotation update and delete.
    */
-  public function annotationUpdateDelete($id) {
+  public function annotationStoreUpdateDelete($id) {
     $this->annotationReqType($id);
+  }
+
+  /**
+   * Get Resource Entity ID.
+   */
+  public function getResourceEntityId() {
+    $request_uri = \Drupal::request()->server->get('HTTP_REFERER');
+    $request_path = parse_url($request_uri, PHP_URL_PATH);
+    // $request_path should not /node/nid. $request_path should be alias.
+    $path_alias = \Drupal::service('path.alias_storage')->load(array('alias' => $request_path));
+    $split = explode('/', $path_alias['source']);
+    return $split[2];
   }
 
   /**
    * Annotation search - Returns list of annotations.
    */
   public function annotationApiSearch() {
-    $obj = entity_load_multiple('annotation_store');
+    $resource_entity_id = $this->getResourceEntityId();
+    $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $resource_entity_id)->execute();
+    $obj = entity_load_multiple('annotation_store', $ids);
     $res = '';
     if ($obj) {
       foreach ($obj as $annotations) {
-        if ($annotations->uri->value == $_GET['uri']) {
         $res .= $annotations->data->value;
-          if ($annotations !== end($obj)) {
-            $res .= ',';
-           
-          }
+        if ($annotations !== end($obj)) {
+          $res .= ',';
+
         }
       }
       $res = rtrim($res, ",");
@@ -67,11 +80,12 @@ class AnnotationStoreController {
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     if ($annotation_data->text) {
       $entity = entity_create('annotation_store', array(
-        'type' => 'video annotation',
+        'type' => $annotation_data->media,
         'language' => $language,
         'data' => json_encode($annotation_data),
         'uri' => $annotation_data->uri,
         'text' => $annotation_data->text,
+        'resource_entity_id' => $this->getResourceEntityId(),
       ));
       $entity->save();
       $annotation_data->id = $entity->id();

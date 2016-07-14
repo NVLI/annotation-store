@@ -23,7 +23,7 @@ class AnnotationStoreAccessControlHandler extends EntityAccessControlHandler {
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     switch ($operation) {
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'view AnnotationStore entity');
+        return AccessResult::allowedIfHasPermission($account, 'View annotation store');
 
     }
     return AccessResult::allowed();

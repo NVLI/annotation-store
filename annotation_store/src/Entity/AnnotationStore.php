@@ -153,6 +153,11 @@ class AnnotationStore extends ContentEntityBase implements AnnotationStoreInterf
       ->setDescription(t('The type of the annotation.'))
       ->setDefaultValue('');
 
+    $fields['resource_entity_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Resource Entity ID'))
+      ->setDescription(t('Resource entity id.'))
+      ->setDefaultValue('');
+
     // Entity reference field, holds the reference to the user object.
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User Name'))
