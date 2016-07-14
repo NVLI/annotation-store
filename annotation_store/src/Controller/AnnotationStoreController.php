@@ -47,8 +47,7 @@ class AnnotationStoreController {
    * Annotation search - Returns list of annotations.
    */
   public function annotationApiSearch() {
-    $resource_entity_id = $this->getResourceEntityId();
-    $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $resource_entity_id)->execute();
+    $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $this->getResourceEntityId())->execute();
     $obj = entity_load_multiple('annotation_store', $ids);
     $res = '';
     if ($obj) {
