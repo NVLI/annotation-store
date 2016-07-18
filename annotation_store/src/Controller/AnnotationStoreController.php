@@ -39,12 +39,12 @@ class AnnotationStoreController {
     $request_path = parse_url($request_uri, PHP_URL_PATH);
     // This method is not used in localhost while testing.
     $path_alias = \Drupal::service('path.alias_storage')->load(array('alias' => $request_path));
-    // If url is from path alias
+    // If url is from path alias.
     if (is_array($path_alias)) {
       $split = explode('/', $path_alias['source']);
       $resource_entity_id = $split[2];
     }
-    // If url is without alias
+    // If url is without alias.
     else {
       $split = explode('/', $request_path);
       $resource_entity_id = $split[2];
