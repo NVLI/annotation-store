@@ -8,9 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Access controller for the comment entity.
- *
- * @see \Drupal\comment\Entity\Comment.
+ * Access controller for the annotation store entity.
  */
 class AnnotationStoreAccessControlHandler extends EntityAccessControlHandler {
 

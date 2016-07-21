@@ -4,11 +4,13 @@ namespace Drupal\annotation_store\Controller;
 
 use Drupal\Component\Serialization\Json;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\Core\Controller\ControllerBase;
 
 /**
  * Controller routines for annotation_store routes.
  */
-class AnnotationStoreController {
+class AnnotationStoreController extends ControllerBase {
 
   /**
    * Routing callback - annotation search.
@@ -56,39 +58,44 @@ class AnnotationStoreController {
    * Annotation search - Returns list of annotations.
    */
   public function annotationApiSearch() {
-    $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $this->getResourceEntityId())->execute();
-    $obj = entity_load_multiple('annotation_store', $ids);
-    $res = '';
-    if ($obj) {
-      foreach ($obj as $annotations) {
-        $res .= $annotations->data->value;
-        if ($annotations !== end($obj)) {
-          $res .= ',';
 
-        }
-      }
-      $res = rtrim($res, ",");
-    }
-    else {
-      // Dummy data for player initialization when data is absent.
-      // Temporary Fix - for Open Video Annotation.
-      $res = '{"permissions":{"read":[],"update":[],"delete":[],"admin":[]},"ranges":[],"quote":"","text":"dummy","media":"video","target":{"container":"vjs_video_dummy","src":"http:\/\/dummy.com\/dummy.mp4","ext":".mp4"},"rangeTime":{"start":3.14796,"end":4.65196},"updated":"2016-07-08T07:23:10.147Z","created":"2016-07-08T07:23:10.147Z","uri":"http:\/\/dummy.com\/dummy\/1","id":"1"}';
-    }
-    $ars = '{"rows":[' . $res . ']}';
-    print $ars;
+    $output = array();
+    $resource_entity_id = \Drupal::request()->query->get('resource_entity_id');
+    
+    $entity = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($resource_entity_id);
+    $annotations = $this->getSearchAnnotation($resource_entity_id);
+    $entity->content['data']['annotations'] = $annotations;
+    
+    \Drupal::moduleHandler()->invokeAll('annotation_store_search_endpoint_output_alter', array(&$entity));
+    $output = $entity->content['data']['annotations'];
+    
+    print $output;
     exit;
   }
+  public function getSearchAnnotation($resource_entity_id) {
+  $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $resource_entity_id)->execute();
+    foreach ($ids as $key => $value) {
+      $records = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($value);
+      $annotation_object = json_decode($records->data->value);
+      $annotations[] = array(
+        'data' => $records->data->value,
+        'id' => $value,
+        'text' => $annotation_object->text,
+      );
+    }
+    return $annotations;
+  }
+  
 
   /**
    * Annotation create as entity.
    */
   public function annotationApiCreate() {
     $annotation_data = $this->annotationApiFromStdin();
-    $annotation_data_save = $annotation_data;
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     if ($annotation_data->text) {
-      $entity = entity_create('annotation_store', array(
-        'type' => $annotation_data->media,
+      $entity = \Drupal::entityManager()->getStorage('annotation_store')->create(array(
+        'type' =>  $annotation_data->media,
         'language' => $language,
         'data' => json_encode($annotation_data),
         'uri' => $annotation_data->uri,
@@ -138,13 +145,14 @@ class AnnotationStoreController {
    * Annotation update callback.
    */
   public function updateAnnotation($id, $data, $flag) {
-    $ent = entity_load('annotation_store', $id);
+
+    $entity = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($id);
     if ($flag == 'onUpdate') {
-      $ent->text->value = $data->text;
-      $ent->changed->value = time();
+      $entity->text->value = $data->text;
+      $entity->changed->value = time();
     }
-    $ent->data->value = json_encode($data);
-    $ent->save();
+    $entity->data->value = json_encode($data);
+    $entity->save();
     return 'updated';
   }
 
@@ -152,7 +160,8 @@ class AnnotationStoreController {
    * Annotation API main endpoint.
    */
   public function annotationReqType($id = NULL) {
-    $method = $_SERVER['REQUEST_METHOD'];
+
+    $method =  \Drupal::request()->server->get('REQUEST_METHOD');
     switch ($method) {
       case 'GET':
         $this->annotationApiSearch();

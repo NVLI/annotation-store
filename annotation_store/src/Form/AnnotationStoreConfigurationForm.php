@@ -25,7 +25,7 @@ class AnnotationStoreConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'settings_form';
+    return 'annotation_store_settings_form';
   }
 
   /**

@@ -84,6 +84,10 @@ class AnnotationStoreListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
+   *
+   * Construct the row datas for annotation_store.
+   * @var config is seperate default form for Date Format as m/d/y with time.
+   * @var date_format contains m/d/y with time in created and Changed row.
    */
   public function buildRow(EntityInterface $entity) {
     $config = \Drupal::config('annotation_store.settings');
