@@ -72,6 +72,7 @@ class AnnotationStoreController extends ControllerBase {
     print $output;
     exit;
   }
+
   public function getSearchAnnotation($resource_entity_id) {
   $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $resource_entity_id)->execute();
     foreach ($ids as $key => $value) {
@@ -85,7 +86,6 @@ class AnnotationStoreController extends ControllerBase {
     }
     return $annotations;
   }
-  
 
   /**
    * Annotation create as entity.
