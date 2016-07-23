@@ -2,7 +2,6 @@
 
 namespace Drupal\annotation_store\Controller;
 
-use Drupal\Component\Serialization\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\Core\Controller\ControllerBase;
@@ -13,188 +12,148 @@ use Drupal\Core\Controller\ControllerBase;
 class AnnotationStoreController extends ControllerBase {
 
   /**
-   * Routing callback - annotation search.
+   * Routing callback - annotation create.
    */
-  public function annotationStoreSearch() {
-    $this->annotationReqType();
-  }
+  public function annotationStoreCreate($id, Request $request) {
 
-  /**
-   * Routing callback - annotation save.
-   */
-  public function annotationStoreSave() {
-    $this->annotationReqType();
+    $response = array();
+    // Get the request data.
+    $received = $request->getContent();
+    $annotation_data = json_decode($received);
+    // Create the annotation entity.
+    $entity->content['data']['annotations'] = $annotation_data;
+    \Drupal::moduleHandler()->invokeAll('annotation_store_create_endpoint_output_alter', array(&$entity, $id));
+    $annotation_data = $entity->content['data']['annotations'];
+    $response = $this->annotationApiCreate($annotation_data, $id);
+    // Add watchdog.
+    //\Drupal::logger('Annotation Store')->info('Created entity %type with ID %id.', array('%type' => $entity->getEntityTypeId(), '%id' => $entity->id()));
+    //$response['id'] = $entity->id();
+    return  new JsonResponse($response);
   }
 
   /**
    * Routing callback - annotation update and delete.
    */
-  public function annotationStoreUpdateDelete($id) {
-    $this->annotationReqType($id);
-  }
+  public function annotationStoreApi($id, Request $request) {
+    $response = array();
+    // Fetch the request method.
+    $request_method = $request->getMethod();
+    // Depending on the request method, perform update/delete/search operations.
+    switch ($request_method) {
 
-  /**
-   * Get Resource Entity ID.
-   */
-  public function getResourceEntityId() {
-    $request_uri = \Drupal::request()->server->get('HTTP_REFERER');
-    $request_path = parse_url($request_uri, PHP_URL_PATH);
-    // This method is not used in localhost while testing.
-    $path_alias = \Drupal::service('path.alias_storage')->load(array('alias' => $request_path));
-    // If url is from path alias.
-    if (is_array($path_alias)) {
-      $split = explode('/', $path_alias['source']);
-      $resource_entity_id = $split[2];
+      case 'GET':
+        $response = $this->annotationApiSearch($id, $request);
+        break;
+
+      case 'PUT' || 'PATCH':
+        $response = $this->annotationApiUpdate($id, $request);
+        break;
+
+      case 'DELETE':
+        $response = $this->annotationApiDelete($id, $request);
+        break;
     }
-    // If url is without alias.
-    else {
-      $split = explode('/', $request_path);
-      $resource_entity_id = $split[2];
-    }
-    return $resource_entity_id;
+    return new JsonResponse($response);
   }
 
   /**
    * Annotation search - Returns list of annotations.
    */
-  public function annotationApiSearch() {
+  public function annotationApiSearch($id, $request) {
 
     $output = array();
-    $resource_entity_id = \Drupal::request()->query->get('resource_entity_id');
-    
+    $resource_entity_id = $id;
+    // Load the Entity.
     $entity = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($resource_entity_id);
+    // get annotations from annotation store
     $annotations = $this->getSearchAnnotation($resource_entity_id);
     $entity->content['data']['annotations'] = $annotations;
-    
     \Drupal::moduleHandler()->invokeAll('annotation_store_search_endpoint_output_alter', array(&$entity));
     $output = $entity->content['data']['annotations'];
-    
-    print $output;
-    exit;
+    return $output;
   }
 
+  /**
+   * Gathers annotations added against an entity.
+   */
   public function getSearchAnnotation($resource_entity_id) {
-  $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $resource_entity_id)->execute();
-    foreach ($ids as $key => $value) {
-      $records = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($value);
-      $annotation_object = json_decode($records->data->value);
-      $annotations[] = array(
-        'data' => $records->data->value,
-        'id' => $value,
-        'text' => $annotation_object->text,
-      );
-    }
-    return $annotations;
+    $annotations = array();
+    $ids = \Drupal::entityQuery('annotation_store')->condition('resource_entity_id', $resource_entity_id)->execute();
+      foreach ($ids as $key => $value) {
+        $records = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($value);
+        $annotation_object = json_decode($records->data->value);
+        $annotations[] = array(
+          'data' => $annotation_object,
+          'id' => $value,
+          'text' => $records->text->value,
+        );
+      }
+     return $annotations;
   }
 
   /**
    * Annotation create as entity.
    */
-  public function annotationApiCreate() {
-    $annotation_data = $this->annotationApiFromStdin();
+  public function annotationApiCreate($annotation_data, $id) {
+    // Get the site default language.
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    // Save only if annotation data is present.
     if ($annotation_data->text) {
-      $entity = \Drupal::entityManager()->getStorage('annotation_store')->create(array(
-        'type' =>  $annotation_data->media,
+      $entity = entity_create('annotation_store', array(
+        'type' => $annotation_data->media,
         'language' => $language,
-        'data' => json_encode($annotation_data),
+        'data' => json_encode($annotation_data->data),
         'uri' => $annotation_data->uri,
         'text' => $annotation_data->text,
-        'resource_entity_id' => $this->getResourceEntityId(),
+        'resource_entity_id' => $annotation_data->id,
       ));
       $entity->save();
       $annotation_data->id = $entity->id();
       $this->updateAnnotation($entity->id(), $annotation_data, 'onCreate');
-      print_r(json_encode($annotation_data));
     }
-    exit;
+    return $entity;
   }
 
   /**
    * Annotation update - loads posted data, returns data as JSON object.
    */
-  public function annotationApiUpdate($id) {
-    $annotation_data = $this->annotationApiFromStdin();
+  public function annotationApiUpdate($id, $request) {
+    $response = array();
+    $entity = array();
+    // Get the request data.
+    $received = $request->getContent();
+    $annotation_data = json_decode($received);
     if ($id) {
-      $this->updateAnnotation($id, $annotation_data, 'onUpdate');
-      print_r(json_encode($annotation_data));
+      $entity = $this->updateAnnotation($id, $annotation_data, 'onUpdate');
     }
-    else {
-      print_r('failed');
-    }
-    exit;
+    $response['id'] = $entity->id();
+    return $response;
   }
 
   /**
    * Annotation update - deletes the entity based on the id passed.
    */
-  public function annotationApiDelete() {
-    $data = $this->annotationApiFromStdin();
-    $id = $data->id;
+  public function annotationApiDelete($id) {
+    $response = array();
     if ($id) {
-      entity_delete_multiple('annotation_store', array($id));
-      print_r(1);
+      $entity = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($id);
+      $entity->delete();
     }
-    else {
-      print_r(0);
-    }
-    exit;
+    $response['id'] = $id;
+    return $response;
   }
 
   /**
    * Annotation update callback.
    */
   public function updateAnnotation($id, $data, $flag) {
-
-    $entity = \Drupal::entityTypeManager()->getStorage('annotation_store')->load($id);
+    $entity = entity_load('annotation_store', $id);
     if ($flag == 'onUpdate') {
       $entity->text->value = $data->text;
       $entity->changed->value = time();
     }
-    $entity->data->value = json_encode($data);
+    $entity->data->value = json_encode($data->data);
     $entity->save();
-    return 'updated';
-  }
-
-  /**
-   * Annotation API main endpoint.
-   */
-  public function annotationReqType($id = NULL) {
-
-    $method =  \Drupal::request()->server->get('REQUEST_METHOD');
-    switch ($method) {
-      case 'GET':
-        $this->annotationApiSearch();
-        break;
-
-      case 'POST':
-        $this->annotationApiCreate();
-        break;
-
-      case 'PUT':
-        $this->annotationApiUpdate($id);
-        break;
-
-      case 'DELETE':
-        $this->annotationApiDelete();
-        break;
-
-    }
-  }
-
-  /**
-   * Get data from stdin.
-   */
-  public function annotationApiFromStdin() {
-    $json = '';
-    // PUT data comes in on the stdin stream.
-    $put = fopen('php://input', 'r');
-    // Read the data 1 KB at a time and write to the file.
-    while ($chunk = fread($put, 1024)) {
-      $json .= $chunk;
-    }
-    fclose($put);
-    $entity = (object) Json::decode($json);
     return $entity;
   }
 

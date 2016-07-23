@@ -19,30 +19,22 @@ entity.annotation_store.collection:
   requirements:
     _permission: 'view annotation_store entity'
 
-annotation_store.save:
-  path: '/annotation-store/api/annotations'
+annotation_store.create:
+  path: '/annotation-store/api/{id}'
   defaults:
-    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::annotationStoreSave'
+    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::annotationStoreCreate'
     _title: 'Annotation Store'
   requirements:
     _permission: 'annotation_store_save'
 
-annotation_store.search:
-  path: '/annotation-store/api/search'
+annotation_store.api:
+  path: '/annotation-store/api/{id}'
+  methods:  [PUT, DELETE, GET, PATCH]
   defaults:
-    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::annotationStoreSearch'
+    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::annotationStoreApi'
     _title: 'Annotation Store Search'
   requirements:
     _permission: 'annotation_store_search'
-    
-annotation_store.alter:
-  path: '/annotation-store/api/annotations/{id}'
-  defaults:
-    _controller: '\Drupal\annotation_store\Controller\AnnotationStoreController::annotationStoreUpdateDelete'
-    _title: 'Annotation Store Update Delete'
-  methods:  [PUT, DELETE]
-  requirements:
-    _permission: 'annotation_store_alter'
 
 annotation_store.admin_settings:
   path: '/admin/config/media/annotation_store'
